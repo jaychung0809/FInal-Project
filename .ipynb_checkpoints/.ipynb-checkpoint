@@ -1,0 +1,443 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 425,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from alpha_vantage.timeseries import TimeSeries\n",
+    "import matplotlib.pyplot as plt\n",
+    "import sklearn as skl\n",
+    "from sklearn import preprocessing\n",
+    "import numpy as np\n",
+    "import tensorflow as tf\n",
+    "import pandas as pd\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 426,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "ts = TimeSeries(key='AJH8MF4OQ465LD6H',output_format='pandas')\n",
+    "data, meta_data = ts.get_daily(symbol='INX', outputsize='full')\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 427,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>1. open</th>\n",
+       "      <th>2. high</th>\n",
+       "      <th>3. low</th>\n",
+       "      <th>4. close</th>\n",
+       "      <th>5. volume</th>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>date</th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>2020-03-13</th>\n",
+       "      <td>2569.9900</td>\n",
+       "      <td>2711.3301</td>\n",
+       "      <td>2492.3701</td>\n",
+       "      <td>2711.0200</td>\n",
+       "      <td>8.258670e+09</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2020-03-12</th>\n",
+       "      <td>2630.8601</td>\n",
+       "      <td>2660.9500</td>\n",
+       "      <td>2478.8601</td>\n",
+       "      <td>2480.6399</td>\n",
+       "      <td>8.829380e+09</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2020-03-11</th>\n",
+       "      <td>2825.6001</td>\n",
+       "      <td>2825.6001</td>\n",
+       "      <td>2707.2200</td>\n",
+       "      <td>2741.3799</td>\n",
+       "      <td>7.374110e+09</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2020-03-10</th>\n",
+       "      <td>2813.4800</td>\n",
+       "      <td>2882.5901</td>\n",
+       "      <td>2734.0000</td>\n",
+       "      <td>2882.2300</td>\n",
+       "      <td>7.635960e+09</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2020-03-09</th>\n",
+       "      <td>2863.8899</td>\n",
+       "      <td>2863.8899</td>\n",
+       "      <td>2734.4299</td>\n",
+       "      <td>2746.5601</td>\n",
+       "      <td>8.423050e+09</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2000-01-07</th>\n",
+       "      <td>1403.4500</td>\n",
+       "      <td>1441.4700</td>\n",
+       "      <td>1400.7300</td>\n",
+       "      <td>1441.4700</td>\n",
+       "      <td>1.225200e+09</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2000-01-06</th>\n",
+       "      <td>1402.1100</td>\n",
+       "      <td>1411.9000</td>\n",
+       "      <td>1392.1000</td>\n",
+       "      <td>1403.4500</td>\n",
+       "      <td>1.092300e+09</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2000-01-05</th>\n",
+       "      <td>1399.4200</td>\n",
+       "      <td>1413.2700</td>\n",
+       "      <td>1377.6801</td>\n",
+       "      <td>1402.1100</td>\n",
+       "      <td>1.085500e+09</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2000-01-04</th>\n",
+       "      <td>1455.2200</td>\n",
+       "      <td>1455.2200</td>\n",
+       "      <td>1397.4301</td>\n",
+       "      <td>1399.4200</td>\n",
+       "      <td>1.009000e+09</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2000-01-03</th>\n",
+       "      <td>1469.2500</td>\n",
+       "      <td>1478.0000</td>\n",
+       "      <td>1438.3600</td>\n",
+       "      <td>1455.2200</td>\n",
+       "      <td>9.318000e+08</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>5081 rows × 5 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "              1. open    2. high     3. low   4. close     5. volume\n",
+       "date                                                                \n",
+       "2020-03-13  2569.9900  2711.3301  2492.3701  2711.0200  8.258670e+09\n",
+       "2020-03-12  2630.8601  2660.9500  2478.8601  2480.6399  8.829380e+09\n",
+       "2020-03-11  2825.6001  2825.6001  2707.2200  2741.3799  7.374110e+09\n",
+       "2020-03-10  2813.4800  2882.5901  2734.0000  2882.2300  7.635960e+09\n",
+       "2020-03-09  2863.8899  2863.8899  2734.4299  2746.5601  8.423050e+09\n",
+       "...               ...        ...        ...        ...           ...\n",
+       "2000-01-07  1403.4500  1441.4700  1400.7300  1441.4700  1.225200e+09\n",
+       "2000-01-06  1402.1100  1411.9000  1392.1000  1403.4500  1.092300e+09\n",
+       "2000-01-05  1399.4200  1413.2700  1377.6801  1402.1100  1.085500e+09\n",
+       "2000-01-04  1455.2200  1455.2200  1397.4301  1399.4200  1.009000e+09\n",
+       "2000-01-03  1469.2500  1478.0000  1438.3600  1455.2200  9.318000e+08\n",
+       "\n",
+       "[5081 rows x 5 columns]"
+      ]
+     },
+     "execution_count": 427,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 428,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[[2569.99  ],\n",
+       "        [2630.8601],\n",
+       "        [2825.6001],\n",
+       "        ...,\n",
+       "        [1399.42  ],\n",
+       "        [1455.22  ],\n",
+       "        [1469.25  ]]])"
+      ]
+     },
+     "execution_count": 428,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "data= data['1. open'].values.reshape(1,len(data))\n",
+    "\n",
+    "data "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 429,
+   "metadata": {},
+   "outputs": [
+    {
+     "ename": "ValueError",
+     "evalue": "Found array with dim 3. MinMaxScaler expected <= 2.",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mValueError\u001b[0m                                Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-429-556c50d0128a>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m\u001b[0m\n\u001b[1;32m      1\u001b[0m \u001b[0;31m# Normalize the data\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      2\u001b[0m \u001b[0mscaler\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mpreprocessing\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mMinMaxScaler\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mfeature_range\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;36m0\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;36m1\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 3\u001b[0;31m \u001b[0mnormalized_data\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mscaler\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mfit_transform\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mdata\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      4\u001b[0m \u001b[0mnormalized_data\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m~/opt/anaconda3/envs/PythonData/lib/python3.7/site-packages/sklearn/base.py\u001b[0m in \u001b[0;36mfit_transform\u001b[0;34m(self, X, y, **fit_params)\u001b[0m\n\u001b[1;32m    569\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0my\u001b[0m \u001b[0;32mis\u001b[0m \u001b[0;32mNone\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    570\u001b[0m             \u001b[0;31m# fit method of arity 1 (unsupervised transformation)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 571\u001b[0;31m             \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mfit\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mX\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mfit_params\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mtransform\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mX\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    572\u001b[0m         \u001b[0;32melse\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    573\u001b[0m             \u001b[0;31m# fit method of arity 2 (supervised transformation)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m~/opt/anaconda3/envs/PythonData/lib/python3.7/site-packages/sklearn/preprocessing/_data.py\u001b[0m in \u001b[0;36mfit\u001b[0;34m(self, X, y)\u001b[0m\n\u001b[1;32m    337\u001b[0m         \u001b[0;31m# Reset internal state before fitting\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    338\u001b[0m         \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_reset\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 339\u001b[0;31m         \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mpartial_fit\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mX\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0my\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    340\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    341\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0mpartial_fit\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mX\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0my\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;32mNone\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m~/opt/anaconda3/envs/PythonData/lib/python3.7/site-packages/sklearn/preprocessing/_data.py\u001b[0m in \u001b[0;36mpartial_fit\u001b[0;34m(self, X, y)\u001b[0m\n\u001b[1;32m    371\u001b[0m         X = check_array(X,\n\u001b[1;32m    372\u001b[0m                         \u001b[0mestimator\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mdtype\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mFLOAT_DTYPES\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 373\u001b[0;31m                         force_all_finite=\"allow-nan\")\n\u001b[0m\u001b[1;32m    374\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    375\u001b[0m         \u001b[0mdata_min\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mnp\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mnanmin\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mX\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0maxis\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;36m0\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m~/opt/anaconda3/envs/PythonData/lib/python3.7/site-packages/sklearn/utils/validation.py\u001b[0m in \u001b[0;36mcheck_array\u001b[0;34m(array, accept_sparse, accept_large_sparse, dtype, order, copy, force_all_finite, ensure_2d, allow_nd, ensure_min_samples, ensure_min_features, warn_on_dtype, estimator)\u001b[0m\n\u001b[1;32m    572\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0;32mnot\u001b[0m \u001b[0mallow_nd\u001b[0m \u001b[0;32mand\u001b[0m \u001b[0marray\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mndim\u001b[0m \u001b[0;34m>=\u001b[0m \u001b[0;36m3\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    573\u001b[0m             raise ValueError(\"Found array with dim %d. %s expected <= 2.\"\n\u001b[0;32m--> 574\u001b[0;31m                              % (array.ndim, estimator_name))\n\u001b[0m\u001b[1;32m    575\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    576\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0mforce_all_finite\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;31mValueError\u001b[0m: Found array with dim 3. MinMaxScaler expected <= 2."
+     ]
+    }
+   ],
+   "source": [
+    "# Normalize the data\n",
+    "scaler = preprocessing.MinMaxScaler(feature_range=(0,1))\n",
+    "normalized_data = scaler.fit_transform(data)\n",
+    "normalized_data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 423,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "4064 1017\n"
+     ]
+    }
+   ],
+   "source": [
+    "# split into train and test sets\n",
+    "train_size = int(len(normalized_data) * 0.8)\n",
+    "test_size = len(normalized_data) - train_size\n",
+    "train, test = normalized_data[0:train_size,:], normalized_data[train_size:len(normalized_data),:]\n",
+    "print(len(train), len(test))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 341,
+   "metadata": {
+    "scrolled": false
+   },
+   "outputs": [
+    {
+     "ename": "TypeError",
+     "evalue": "'(slice(None, None, None), 0)' is an invalid key",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mTypeError\u001b[0m                                 Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-341-5f35cc394e7f>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m\u001b[0m\n\u001b[1;32m      3\u001b[0m \u001b[0mnumber_of_data\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;36m100\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      4\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 5\u001b[0;31m \u001b[0mopen_price\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mnp\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0marray\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mdata\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;36m0\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mi\u001b[0m \u001b[0;34m+\u001b[0m \u001b[0mnumber_of_data\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mcopy\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;32mfor\u001b[0m \u001b[0mi\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mrange\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mlen\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mdata\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;34m-\u001b[0m \u001b[0mnumber_of_data\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      6\u001b[0m \u001b[0mopen_price\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mnp\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mexpand_dims\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mopen_price\u001b[0m \u001b[0;34m,\u001b[0m \u001b[0;34m-\u001b[0m\u001b[0;36m1\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      7\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m<ipython-input-341-5f35cc394e7f>\u001b[0m in \u001b[0;36m<listcomp>\u001b[0;34m(.0)\u001b[0m\n\u001b[1;32m      3\u001b[0m \u001b[0mnumber_of_data\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;36m100\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      4\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 5\u001b[0;31m \u001b[0mopen_price\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mnp\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0marray\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mdata\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;36m0\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mi\u001b[0m \u001b[0;34m+\u001b[0m \u001b[0mnumber_of_data\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mcopy\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;32mfor\u001b[0m \u001b[0mi\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mrange\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mlen\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mdata\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;34m-\u001b[0m \u001b[0mnumber_of_data\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      6\u001b[0m \u001b[0mopen_price\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mnp\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mexpand_dims\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mopen_price\u001b[0m \u001b[0;34m,\u001b[0m \u001b[0;34m-\u001b[0m\u001b[0;36m1\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      7\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m~/opt/anaconda3/envs/PythonData/lib/python3.7/site-packages/pandas/core/frame.py\u001b[0m in \u001b[0;36m__getitem__\u001b[0;34m(self, key)\u001b[0m\n\u001b[1;32m   2798\u001b[0m             \u001b[0;32mif\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mcolumns\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mnlevels\u001b[0m \u001b[0;34m>\u001b[0m \u001b[0;36m1\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   2799\u001b[0m                 \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_getitem_multilevel\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mkey\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 2800\u001b[0;31m             \u001b[0mindexer\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mcolumns\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mget_loc\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mkey\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   2801\u001b[0m             \u001b[0;32mif\u001b[0m \u001b[0mis_integer\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mindexer\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   2802\u001b[0m                 \u001b[0mindexer\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;34m[\u001b[0m\u001b[0mindexer\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m~/opt/anaconda3/envs/PythonData/lib/python3.7/site-packages/pandas/core/indexes/base.py\u001b[0m in \u001b[0;36mget_loc\u001b[0;34m(self, key, method, tolerance)\u001b[0m\n\u001b[1;32m   2644\u001b[0m                 )\n\u001b[1;32m   2645\u001b[0m             \u001b[0;32mtry\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 2646\u001b[0;31m                 \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_engine\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mget_loc\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mkey\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   2647\u001b[0m             \u001b[0;32mexcept\u001b[0m \u001b[0mKeyError\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   2648\u001b[0m                 \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_engine\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mget_loc\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_maybe_cast_indexer\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mkey\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32mpandas/_libs/index.pyx\u001b[0m in \u001b[0;36mpandas._libs.index.IndexEngine.get_loc\u001b[0;34m()\u001b[0m\n",
+      "\u001b[0;32mpandas/_libs/index.pyx\u001b[0m in \u001b[0;36mpandas._libs.index.IndexEngine.get_loc\u001b[0;34m()\u001b[0m\n",
+      "\u001b[0;31mTypeError\u001b[0m: '(slice(None, None, None), 0)' is an invalid key"
+     ]
+    }
+   ],
+   "source": [
+    "# # using the last {history_points} open high low close volume data points, predict the next open value\n",
+    "\n",
+    "# number_of_data = 100\n",
+    "\n",
+    "# open_price = np.array([data[:,0][i + number_of_data].copy() for i in range(len(data) - number_of_data)])\n",
+    "# open_price = np.expand_dims(open_price , -1)\n",
+    "\n",
+    "# next_day_open_values = np.array([data[:,0][i + number_of_data].copy() for i in range(len(data) - number_of_data)])\n",
+    "# next_day_open_values = np.expand_dims(next_day_open_values_normalised, -1)\n",
+    "\n",
+    "# y_normaliser = preprocessing.MinMaxScaler()\n",
+    "# y_normaliser.fit(np.expand_dims( next_day_open_values ))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# using the last {history_points} open high low close volume data points, predict the next open value\n",
+    "# ohlcv_histories_normalised =      np.array([data_normalised[i  : i + history_points].copy() for i in range(len(data_normalised) - history_points)])\n",
+    "# next_day_open_values_normalised = np.array([data_normalised[:,0][i + history_points].copy() for i in range(len(data_normalised) - history_points)])\n",
+    "# next_day_open_values_normalised = np.expand_dims(next_day_open_values_normalised, -1)\n",
+    "\n",
+    "# next_day_open_values = np.array([data[:,0][i + history_points].copy() for i in range(len(data) - history_points)])\n",
+    "# next_day_open_values = np.expand_dims(next_day_open_values_normalised, -1)\n",
+    "\n",
+    "# y_normaliser = preprocessing.MinMaxScaler()\n",
+    "# y_normaliser.fit(np.expand_dims( next_day_open_values ))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 242,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Define the model - deep neural net\n",
+    "number_input_features = len(X_train_scaled[0])\n",
+    "hidden_nodes_layer1 =  1024\n",
+    "hidden_nodes_layer2 = 512\n",
+    "hidden_nodes_layer3 =  256\n",
+    "hidden_nodes_layer4 = 128\n",
+    "\n",
+    "nn = tf.keras.models.Sequential()\n",
+    "\n",
+    "# First hidden layer\n",
+    "nn.add(tf.keras.layers.Dense(units=hidden_nodes_layer1, input_dim=number_input_features, activation=\"relu\"))\n",
+    "\n",
+    "# Second hidden layer\n",
+    "nn.add(tf.keras.layers.Dense(units=hidden_nodes_layer2, activation=\"relu\"))\n",
+    "\n",
+    "\n",
+    "# Thrid hidden layer\n",
+    "nn.add(tf.keras.layers.Dense(units=hidden_nodes_layer3, activation=\"relu\"))\n",
+    "\n",
+    "# Fourth hidden layer\n",
+    "nn.add(tf.keras.layers.Dense(units=hidden_nodes_layer4, activation=\"relu\"))\n",
+    "\n",
+    "\n",
+    "# Output layer\n",
+    "nn.add(tf.keras.layers.Dense(units=1, activation=\"sigmoid\"))\n",
+    "\n",
+    "#Compile the sequential model together and customize metrics\n",
+    "nn.compile(loss=\"mse\", optimizer= \"adam\", metrics=[\"accuracy\"])\n",
+    "\n",
+    "#Train the model\n",
+    "fit_model =nn.fit(X_train_scaled, y_train.values, epochs=50)\n",
+    "\n",
+    "# Check the structure of the model\n",
+    "nn.summary()\n",
+    "\n",
+    "#Evaluate the model using test data\n",
+    "model_loss, model_accuracy = nn.evaluate(X_test_scaled, y_test.values,verbose=2)\n",
+    "print(f\"Loss: {model_loss}, Accuracy: {model_accuracy}\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred = nn.predict(X_test_scaled)\n",
+    "y_test"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import matplotlib.pyplot as plt\n",
+    "plt.gcf().set_size_inches(22, 15, forward=True)\n",
+    "\n",
+    "start = 0\n",
+    "end = -1\n",
+    "\n",
+    "real = plt.plot(y_test[start:end], label='real')\n",
+    "pred = plt.plot(y_pred[start:end], label='predicted')\n",
+    "\n",
+    "plt.legend(['real' 'Predicted'])\n",
+    "\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "PythonData",
+   "language": "python",
+   "name": "pythondata"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.6"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
