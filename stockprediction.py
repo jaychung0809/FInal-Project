@@ -12,7 +12,7 @@ from flask import Flask, render_template, jsonify
 from flask_pymongo import PyMongo
 from pymongo import MongoClient
 
-# import scraping
+
 app = Flask(__name__)
 #Use flask_pymongo to set up mongo connection
 app.config["MONGO_URI"] = "mongodb://localhost:27017/stocks_app"
@@ -112,9 +112,8 @@ def get_data():
     week_prediction = scaler.inverse_transform(np.expand_dims(prediction_for_days_in_future, -1))
     train = data[:training_data_len]
     tested = data[training_data_len:]
-    tested['Predictions'] = predictions
 
     return week_prediction, predictions, tested, train
 
 
-predict()
+get_data()
