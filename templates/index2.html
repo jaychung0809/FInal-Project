@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S&P 500 Predictions</title>
+
+
+</head>
+<body>
+    <div id='myDiv'><!-- Plotly chart will be drawn inside this DIV --></div>
+    <!-- Load plotly.js into the DOM -->
+    <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/5.15.0/d3.min.js'></script>
+    <script>
+        d3.json('/predict').then(response => {
+
+            var trace1 = {
+
+                // x: response.date,
+                y: response.actual, 
+                type: 'scatter',
+                name: 'Actual'
+            };
+
+            var trace2 = {
+                // x: response.date,
+                y: response.predicted, 
+                type: 'scatter',
+                name: 'Predicted'
+            };
+
+            var data = [trace1, trace2];
+
+            Plotly.newPlot('myDiv', data);
+        });
+
+    </script>
+</body>
+</html>
