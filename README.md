@@ -1,5 +1,6 @@
 # FInal Project
 
+Presentation: https://docs.google.com/presentation/d/16oOHJTFed1zy0HdXkr4aMktn59eQ84XbNKnTGbrcuoI/edit?usp=sharing
 
 
 ## Selected topic
